@@ -1,0 +1,38 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+}
+
+.start-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-family: "Fredoka One";
+}
+
+.start-screen__title {
+  font-size: 3rem;
+  color: #ffffff;
+}
+
+.start-screen__start {
+  font-size: 1.5rem;
+  color: yellow;
+  cursor: pointer;
+}
