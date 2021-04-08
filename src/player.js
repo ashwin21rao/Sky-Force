@@ -6,6 +6,7 @@ class Player extends Sprite {
     super(scene, path);
     this.setUpEventListeners();
     this.movements = { left: false, right: false, up: false, down: false };
+    this.timeOfLastSpacePress = null;
     this.lasers = [];
     this.score = 0;
     this.health = 10;
@@ -15,7 +16,6 @@ class Player extends Sprite {
   init = async () => {
     await this.loadSprite();
 
-    console.log(this.sprite);
     this.sprite.position.set(0, 0, 0);
     this.sprite.rotation.set(0, -Math.PI / 2, 0);
     this.sprite.scale.set(0.3, 0.3, 0.3);
@@ -31,7 +31,12 @@ class Player extends Sprite {
     else if (e.key === "s") this.movements.down = true;
 
     // shoot laser
-    if (e.key === " ") this.shoot();
+    if (e.key === " ") {
+      if (!this.timeOfLastSpacePress) {
+        this.timeOfLastSpacePress = Date.now();
+        this.shoot();
+      }
+    }
   };
 
   onKeyUp = (e) => {
@@ -39,6 +44,7 @@ class Player extends Sprite {
     else if (e.key === "a") this.movements.left = false;
     else if (e.key === "w") this.movements.up = false;
     else if (e.key === "s") this.movements.down = false;
+    else if (e.key === " ") this.timeOfLastSpacePress = null;
   };
 
   move = (width, height) => {
@@ -50,6 +56,16 @@ class Player extends Sprite {
       this.sprite.position.z -= 0.4;
     if (this.movements.down && this.sprite.position.z < height / 2 - 5)
       this.sprite.position.z += 0.4;
+  };
+
+  shootNext = () => {
+    if (
+      this.timeOfLastSpacePress &&
+      Date.now() - this.timeOfLastSpacePress > 75
+    ) {
+      this.shoot();
+      this.timeOfLastSpacePress = Date.now();
+    }
   };
 
   shoot = () => {
@@ -91,7 +107,7 @@ class Player extends Sprite {
       return ret > 2;
     });
 
-    if (this.health <= 0) {
+    if (Math.floor(this.health) <= 0) {
       this.scene.remove(this.sprite);
       this.dead = true;
     }

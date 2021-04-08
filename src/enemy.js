@@ -4,7 +4,7 @@ import Sprite from "./sprite.js";
 class Enemy extends Sprite {
   constructor(scene, path) {
     super(scene, path);
-    this.health = 15;
+    this.health = 20;
     this.lasers = [];
     this.dead = false;
   }
@@ -12,7 +12,6 @@ class Enemy extends Sprite {
   init = async (x_pos, y_pos) => {
     await this.loadSprite();
 
-    console.log(this.sprite);
     this.sprite.position.set(x_pos, 0, y_pos);
     this.sprite.scale.set(0.5, 0.5, 0.5);
     this.sprite.rotation.set(0, Math.PI / 2, 0);

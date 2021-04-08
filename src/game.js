@@ -53,7 +53,7 @@ class Game {
     this.player = new Player(this.scene, "../assets/lancer-ii/Stingray.glb");
     await this.player.init();
 
-    const number_of_enemies = 20;
+    const number_of_enemies = Math.floor((20 / 100) * this.window_width);
     this.enemies = Array.from(
       { length: number_of_enemies },
       () => new Enemy(this.scene, "../assets/lancer-ii/Stingray.glb")
@@ -95,6 +95,7 @@ class Game {
   };
 
   animate = () => {
+    console.log(this.window_width);
     // update tweening if any
     TWEEN.update();
 
@@ -102,6 +103,7 @@ class Game {
     this.player.move(this.window_width, this.window_height);
 
     // move player lasers
+    this.player.shootNext();
     this.player.moveLasers(this.window_height);
 
     // check if player has been hit
@@ -181,7 +183,7 @@ class Game {
             player_y: this.player.sprite.position.y,
           })
         );
-      }, 700);
+      }, 500);
     });
   };
 
