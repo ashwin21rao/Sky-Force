@@ -10,9 +10,10 @@ class Camera {
       1000
     );
 
-    this.camera.position.set(0, 30, 0);
-    this.camera.lookAt(0, 60, 0);
-    this.can_move = false;
+    this.height = 50;
+
+    this.camera.position.set(0, this.height, 0);
+    this.camera.lookAt(0, this.height + 1, 0);
   }
 
   resetAspectRatio = (window_width, window_height) => {
@@ -29,31 +30,27 @@ class Camera {
     this.camera.quaternion.copy(startRotation);
 
     new TWEEN.Tween(this.camera.quaternion)
-      .to(endRotation, 2000)
-      .easing(TWEEN.Easing.Exponential.InOut)
+      .to(endRotation, 5000)
+      .easing(TWEEN.Easing.Quintic.InOut)
       .start()
       .onComplete(() => {
-        const position = {
-          x: this.camera.position.x,
-          y: this.camera.position.y,
-          z: this.camera.position.z,
-        };
-
-        console.log("Here", position);
-        new TWEEN.Tween(position)
-          .to({ x: 0, y: 30, z: 20 }, 2000)
-          .easing(TWEEN.Easing.Linear.None)
-          .onUpdate(() => {
-            this.camera.position.set(position.x, position.y, position.z);
-            this.camera.lookAt(0, 0, 0);
-          })
-          .delay(200)
-          .start()
-          .onComplete(() => (this.can_move = true));
+        // const position = {
+        //   x: this.camera.position.x,
+        //   y: this.camera.position.y,
+        //   z: this.camera.position.z,
+        // };
+        // new TWEEN.Tween(position)
+        //   .to({ x: 50, y: 30, z: 0 }, 2000)
+        //   .easing(TWEEN.Easing.Linear.None)
+        //   .onUpdate(() => {
+        //     this.camera.position.set(position.x, position.y, position.z);
+        //     this.camera.lookAt(0, 0, 0);
+        //   })
+        //   .delay(200)
+        //   .start()
+        //   .onComplete(() => (this.can_move = true));
       });
   };
-
-  move = () => {};
 }
 
 export default Camera;
