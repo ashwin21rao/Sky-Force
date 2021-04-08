@@ -11,17 +11,20 @@ class Camera {
     );
 
     this.height = 50;
+    this.resetPosition();
+  }
 
+  resetPosition = () => {
     this.camera.position.set(0, this.height, 0);
     this.camera.lookAt(0, this.height + 1, 0);
-  }
+  };
 
   resetAspectRatio = (window_width, window_height) => {
     this.camera.aspect = window_width / window_height;
     this.camera.updateProjectionMatrix();
   };
 
-  startAnimation = () => {
+  startAnimation = (callback) => {
     const startRotation = this.camera.quaternion.clone();
 
     this.camera.lookAt(0, 0, 0);
@@ -34,6 +37,7 @@ class Camera {
       .easing(TWEEN.Easing.Quintic.InOut)
       .start()
       .onComplete(() => {
+        callback();
         // const position = {
         //   x: this.camera.position.x,
         //   y: this.camera.position.y,

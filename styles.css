@@ -11,10 +11,16 @@
   height: 100vh;
 }
 
-.start-screen {
+.start-screen,
+.score-box,
+.end-screen {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.start-screen,
+.end-screen {
   width: 100vw;
   height: 100vh;
   z-index: 2;
@@ -27,12 +33,50 @@
   font-family: "Fredoka One";
 }
 
-.start-screen__title {
+.end-screen {
+  display: none;
+}
+
+.start-screen__title,
+.end-screen__title {
   font-size: 3rem;
   color: #ffffff;
 }
 
-.start-screen__start {
+.start-screen__start,
+.end-screen__score {
   font-size: 1.5rem;
   color: yellow;
+}
+
+.end-screen__restart {
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin-top: 2rem;
+  cursor: pointer;
+
+  animation: throb 1.2s ease-out infinite;
+}
+
+.score-box {
+  z-index: 3;
+  padding: 2rem;
+
+  font-family: "Fredoka One";
+  color: white;
+  font-size: 1.5rem;
+
+  display: none;
+}
+
+@keyframes throb {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

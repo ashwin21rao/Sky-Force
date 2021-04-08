@@ -20,15 +20,30 @@ class Game {
 
     this.ambientLight = new THREE.AmbientLight(0xffffff, 3);
     this.scene.add(this.ambientLight);
+
+    this.enemyShootInterval = null;
   }
 
-  init = async () => {
-    this.initRenderer();
-    this.loadScenebackground();
-    this.setupEventListeners();
+  initRenderer = () => {
+    this.renderer.setSize(
+      this.container.clientWidth,
+      this.container.clientHeight
+    );
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.container.appendChild(this.renderer.domElement);
+  };
 
-    await this.loadSprites();
-    this.animate();
+  loadScenebackground = () => {
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      "../assets/space/space-posx.jpg",
+      "../assets/space/space-negx.jpg",
+      "../assets/space/space-posy.jpg",
+      "../assets/space/space-negy.jpg",
+      "../assets/space/space-posz.jpg",
+      "../assets/space/space-negz.jpg",
+    ]);
+    this.scene.background = texture;
   };
 
   loadSprites = async () => {
@@ -54,34 +69,109 @@ class Game {
     this.startButton.style.cursor = "pointer";
   };
 
-  initRenderer = () => {
-    this.renderer.setSize(
-      this.container.clientWidth,
-      this.container.clientHeight
-    );
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.container.appendChild(this.renderer.domElement);
+  init = async () => {
+    this.initRenderer();
+    this.loadScenebackground();
+    this.setupEventListeners();
+
+    await this.reInit();
   };
 
-  loadScenebackground = () => {
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      "../assets/space/space-posx.jpg",
-      "../assets/space/space-negx.jpg",
-      "../assets/space/space-posy.jpg",
-      "../assets/space/space-negy.jpg",
-      "../assets/space/space-posz.jpg",
-      "../assets/space/space-negz.jpg",
-    ]);
-    this.scene.background = texture;
+  reInit = async () => {
+    document.querySelector(".end-screen").style.display = "none";
+
+    document.querySelector(".start-screen").style.display = "flex";
+    this.startButton.textContent = "Loading...";
+    this.startButton.style.cursor = "auto";
+
+    this.camera.resetPosition();
+    await this.loadSprites();
+    this.animate();
   };
 
   animate = () => {
+    // update tweening if any
     TWEEN.update();
-    this.renderer.render(this.scene, this.camera.camera);
+
+    // move player
     this.player.move(this.window_width, this.window_height);
-    this.enemies.forEach((enemy) => enemy.checkIfHit(this.player.lasers));
+
+    // move player lasers
+    this.player.moveLasers(this.window_height);
+
+    // check if player has been hit
+    this.enemies.forEach((enemy) => {
+      enemy.lasers = this.player.checkIfHit(enemy.lasers);
+
+      document.querySelector(
+        ".score-box__health"
+      ).textContent = `Health: ${this.player.health}`;
+    });
+
+    // check if player is dead
+    if (this.player.dead) {
+      this.endGame();
+      return;
+    }
+
+    // check if enemy has been hit
+    this.enemies.forEach((enemy) => {
+      let dead;
+      [this.player.lasers, dead] = enemy.checkIfHit(this.player.lasers);
+      if (dead) this.player.score += 10;
+
+      document.querySelector(
+        ".score-box__score"
+      ).textContent = `Score: ${this.player.score}`;
+    });
+
+    // move enemy lasers
+    this.enemies.forEach((enemy) => {
+      enemy.moveLasers();
+    });
+
+    // remove dead enemies
+    this.enemies = this.enemies.filter((enemy) => !enemy.dead);
+
+    // render screen
+    this.renderer.render(this.scene, this.camera.camera);
     requestAnimationFrame(this.animate);
+  };
+
+  startGame = () => {
+    document.querySelector(".start-screen").style.display = "none";
+    document.querySelector(".score-box").style.display = "block";
+
+    this.camera.startAnimation(() => {
+      this.enemyShootInterval = setInterval(() => {
+        this.enemies.forEach((enemy) =>
+          enemy.shoot({
+            player_x: this.player.sprite.position.x,
+            player_y: this.player.sprite.position.y,
+          })
+        );
+      }, 400);
+    });
+  };
+
+  endGame = () => {
+    clearInterval(this.enemyShootInterval);
+
+    this.player.remove();
+    this.enemies.forEach((enemy) => enemy.remove());
+
+    document.querySelector(
+      ".end-screen__score"
+    ).textContent = `Score: ${this.player.score}`;
+    document.querySelector(".end-screen").style.display = "flex";
+
+    document.querySelector(".score-box").style.display = "none";
+  };
+
+  calculateVisibleRegion = () => {
+    const vFOV = THREE.MathUtils.degToRad(this.camera.camera.fov);
+    this.window_height = 2 * Math.tan(vFOV / 2) * this.camera.height;
+    this.window_width = this.camera.height * this.camera.camera.aspect;
   };
 
   handleWindowResize = () => {
@@ -98,20 +188,13 @@ class Game {
     this.calculateVisibleRegion();
   };
 
-  startGame = () => {
-    document.querySelector(".start-screen").style.display = "none";
-    this.camera.startAnimation();
-  };
-
   setupEventListeners = () => {
     window.addEventListener("resize", this.handleWindowResize);
     this.startButton.addEventListener("click", this.startGame);
-  };
 
-  calculateVisibleRegion = () => {
-    const vFOV = THREE.MathUtils.degToRad(this.camera.camera.fov);
-    this.window_height = 2 * Math.tan(vFOV / 2) * this.camera.height;
-    this.window_width = this.camera.height * this.camera.camera.aspect;
+    document
+      .querySelector(".end-screen__restart")
+      .addEventListener("click", this.reInit);
   };
 }
 

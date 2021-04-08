@@ -7,6 +7,9 @@ class Player extends Sprite {
     this.setUpEventListeners();
     this.movements = { left: false, right: false, up: false, down: false };
     this.lasers = [];
+    this.score = 0;
+    this.health = 50;
+    this.dead = false;
   }
 
   init = async () => {
@@ -42,15 +45,13 @@ class Player extends Sprite {
 
   move = (width, height) => {
     if (this.movements.right && this.sprite.position.x < width / 2 - 15)
-      this.sprite.position.x += 0.2;
+      this.sprite.position.x += 0.4;
     if (this.movements.left && this.sprite.position.x > -width / 2 + 15)
-      this.sprite.position.x -= 0.2;
+      this.sprite.position.x -= 0.4;
     if (this.movements.up && this.sprite.position.z > -height / 2 + 5)
-      this.sprite.position.z -= 0.2;
+      this.sprite.position.z -= 0.4;
     if (this.movements.down && this.sprite.position.z < height / 2 - 5)
-      this.sprite.position.z += 0.2;
-
-    this.moveLasers(height);
+      this.sprite.position.z += 0.4;
   };
 
   shoot = () => {
@@ -62,7 +63,6 @@ class Player extends Sprite {
     ];
 
     new_lasers.forEach((laser, i) => {
-      console.log(laser);
       this.lasers.push(laser);
       laser.scale.set(0.2, 0.2, 1.5);
       laser.position.set(
@@ -81,7 +81,28 @@ class Player extends Sprite {
       if (ret) this.scene.remove(laser);
       return !ret;
     });
-    // console.log(this.lasers.length);
+  };
+
+  checkIfHit = (lasers) => {
+    lasers = lasers.filter((laser) => {
+      const ret = this.sprite.position.distanceTo(laser.position);
+      if (ret <= 2) {
+        this.scene.remove(laser);
+        this.health -= 1;
+      }
+      return ret > 2;
+    });
+
+    if (this.health == 0) {
+      this.scene.remove(this.sprite);
+      this.dead = true;
+    }
+    return lasers;
+  };
+
+  remove = () => {
+    this.lasers.forEach((laser) => this.scene.remove(laser));
+    this.scene.remove(this.sprite);
   };
 }
 
