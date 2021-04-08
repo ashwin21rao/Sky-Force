@@ -21,7 +21,10 @@ class Enemy extends Sprite {
   };
 
   shoot = ({ player_x, player_y }) => {
-    if (Math.abs(this.sprite.position.x - player_x) <= 2) {
+    if (
+      Math.abs(this.sprite.position.x - player_x) <= 2 ||
+      Math.random() > 0.9
+    ) {
       const geometry = new THREE.BoxGeometry();
       const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
       const laser = new THREE.Mesh(geometry, material);

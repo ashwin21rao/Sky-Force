@@ -3,6 +3,7 @@ import TWEEN from "https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tw
 import Camera from "./camera.js";
 import Player from "./player.js";
 import Enemy from "./enemy.js";
+import Star from "./star.js";
 
 class Game {
   constructor() {
@@ -17,11 +18,13 @@ class Game {
     this.calculateVisibleRegion();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // this.renderer.setClearColor(0xffffff, 0);
 
     this.ambientLight = new THREE.AmbientLight(0xffffff, 3);
     this.scene.add(this.ambientLight);
 
     this.enemyShootInterval = null;
+    this.started = false;
   }
 
   initRenderer = () => {
@@ -56,13 +59,15 @@ class Game {
       () => new Enemy(this.scene, "../assets/lancer-ii/Stingray.glb")
     );
 
-    const width = this.window_width;
+    const width = this.window_width - 30;
     for (const [i, enemy] of this.enemies.entries()) {
       await enemy.init(
         (width * i) / number_of_enemies - width / 2,
         -this.window_height / 2 + 3
       );
     }
+
+    this.stars = [];
 
     console.log("Done");
     this.startButton.textContent = "Start";
@@ -105,12 +110,12 @@ class Game {
 
       document.querySelector(
         ".score-box__health"
-      ).textContent = `Health: ${this.player.health}`;
+      ).textContent = `Health: ${Math.floor(this.player.health)}`;
     });
 
     // check if player is dead
     if (this.player.dead) {
-      this.endGame();
+      this.endGame(false);
       return;
     }
 
@@ -133,9 +138,34 @@ class Game {
     // remove dead enemies
     this.enemies = this.enemies.filter((enemy) => !enemy.dead);
 
+    // check if all enemies are dead
+    if (this.enemies.length === 0) {
+      this.endGame(true);
+      return;
+    }
+
+    // generate star
+    if (this.started) this.generateStar();
+
+    // check if star obtained
+    this.stars = this.player.checkIfStarObtained(this.stars);
+
     // render screen
     this.renderer.render(this.scene, this.camera.camera);
     requestAnimationFrame(this.animate);
+  };
+
+  generateStar = () => {
+    if (Math.random() > 0.99) {
+      console.log("Here");
+      const star = new Star(this.scene);
+      star.sprite.position.set(
+        Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
+        0,
+        Math.random() * (this.window_height - 10) - this.window_height / 2 + 5
+      );
+      this.stars.push(star);
+    }
   };
 
   startGame = () => {
@@ -143,6 +173,7 @@ class Game {
     document.querySelector(".score-box").style.display = "block";
 
     this.camera.startAnimation(() => {
+      this.started = true;
       this.enemyShootInterval = setInterval(() => {
         this.enemies.forEach((enemy) =>
           enemy.shoot({
@@ -150,20 +181,26 @@ class Game {
             player_y: this.player.sprite.position.y,
           })
         );
-      }, 400);
+      }, 700);
     });
   };
 
-  endGame = () => {
+  endGame = (won) => {
     clearInterval(this.enemyShootInterval);
+    this.started = false;
 
     this.player.remove();
     this.enemies.forEach((enemy) => enemy.remove());
+    this.stars.forEach((star) => star.remove());
 
     document.querySelector(
       ".end-screen__score"
     ).textContent = `Score: ${this.player.score}`;
     document.querySelector(".end-screen").style.display = "flex";
+
+    document.querySelector(".end-screen__title").textContent = won
+      ? "You won!"
+      : "Game over";
 
     document.querySelector(".score-box").style.display = "none";
   };

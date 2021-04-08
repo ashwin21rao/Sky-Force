@@ -8,7 +8,7 @@ class Player extends Sprite {
     this.movements = { left: false, right: false, up: false, down: false };
     this.lasers = [];
     this.score = 0;
-    this.health = 50;
+    this.health = 10;
     this.dead = false;
   }
 
@@ -23,24 +23,22 @@ class Player extends Sprite {
     this.scene.add(this.sprite);
   };
 
-  setUpEventListeners = () => {
-    window.addEventListener("keydown", (e) => {
-      // movement
-      if (e.key === "d") this.movements.right = true;
-      else if (e.key === "a") this.movements.left = true;
-      else if (e.key === "w") this.movements.up = true;
-      else if (e.key === "s") this.movements.down = true;
+  onKeyDown = (e) => {
+    // movement
+    if (e.key === "d") this.movements.right = true;
+    else if (e.key === "a") this.movements.left = true;
+    else if (e.key === "w") this.movements.up = true;
+    else if (e.key === "s") this.movements.down = true;
 
-      // shoot laser
-      if (e.key === " ") this.shoot();
-    });
+    // shoot laser
+    if (e.key === " ") this.shoot();
+  };
 
-    window.addEventListener("keyup", (e) => {
-      if (e.key === "d") this.movements.right = false;
-      else if (e.key === "a") this.movements.left = false;
-      else if (e.key === "w") this.movements.up = false;
-      else if (e.key === "s") this.movements.down = false;
-    });
+  onKeyUp = (e) => {
+    if (e.key === "d") this.movements.right = false;
+    else if (e.key === "a") this.movements.left = false;
+    else if (e.key === "w") this.movements.up = false;
+    else if (e.key === "s") this.movements.down = false;
   };
 
   move = (width, height) => {
@@ -93,16 +91,36 @@ class Player extends Sprite {
       return ret > 2;
     });
 
-    if (this.health == 0) {
+    if (this.health <= 0) {
       this.scene.remove(this.sprite);
       this.dead = true;
     }
     return lasers;
   };
 
+  checkIfStarObtained = (stars) => {
+    return stars.filter((star) => {
+      const ret = this.sprite.position.distanceTo(star.sprite.position);
+      if (ret <= 3) {
+        this.scene.remove(star.sprite);
+        this.score += 5;
+        this.health += 0.2;
+      }
+      return ret > 3;
+    });
+  };
+
   remove = () => {
     this.lasers.forEach((laser) => this.scene.remove(laser));
     this.scene.remove(this.sprite);
+
+    window.removeEventListener("keydown", this.onKeyDown);
+    window.removeEventListener("keyup", this.onKeyUp);
+  };
+
+  setUpEventListeners = () => {
+    window.addEventListener("keydown", this.onKeyDown);
+    window.addEventListener("keyup", this.onKeyUp);
   };
 }
 
