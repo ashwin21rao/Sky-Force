@@ -41,6 +41,7 @@
 .end-screen__title {
   font-size: 3rem;
   color: #ffffff;
+  text-transform: uppercase;
 }
 
 .start-screen__start,

@@ -20,8 +20,12 @@ class Game {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     // this.renderer.setClearColor(0xffffff, 0);
 
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 3);
-    this.scene.add(this.ambientLight);
+    // const ambientLight = new THREE.AmbientLight(0xffffff, 3);
+    // this.scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xffffff, 2.1);
+    pointLight.position.set(0, 1000, 0);
+    this.scene.add(pointLight);
 
     this.enemyShootInterval = null;
     this.started = false;
@@ -50,20 +54,20 @@ class Game {
   };
 
   loadSprites = async () => {
-    this.player = new Player(this.scene, "../assets/lancer-ii/Stingray.glb");
+    this.player = new Player(this.scene, "../assets/new_ship-2.glb");
     await this.player.init();
 
     const number_of_enemies = Math.floor((20 / 100) * this.window_width);
     this.enemies = Array.from(
       { length: number_of_enemies },
-      () => new Enemy(this.scene, "../assets/lancer-ii/Stingray.glb")
+      () => new Enemy(this.scene, "../assets/new_ship.glb")
     );
 
     const width = this.window_width - 30;
     for (const [i, enemy] of this.enemies.entries()) {
       await enemy.init(
         (width * i) / number_of_enemies - width / 2,
-        -this.window_height / 2 + 3
+        -this.window_height / 2 + 4
       );
     }
 
@@ -158,13 +162,13 @@ class Game {
   };
 
   generateStar = () => {
-    if (Math.random() > 0.99) {
+    if (Math.random() > 0.995) {
       console.log("Here");
       const star = new Star(this.scene);
       star.sprite.position.set(
         Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
         0,
-        Math.random() * (this.window_height - 10) - this.window_height / 2 + 5
+        Math.random() * (this.window_height - 24) - this.window_height / 2 + 12
       );
       this.stars.push(star);
     }

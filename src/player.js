@@ -17,9 +17,9 @@ class Player extends Sprite {
     await this.loadSprite();
 
     this.sprite.position.set(0, 0, 0);
-    this.sprite.rotation.set(0, -Math.PI / 2, 0);
-    this.sprite.scale.set(0.3, 0.3, 0.3);
-    this.sprite.translateX(15);
+    this.sprite.rotation.set(0, -Math.PI, 0);
+    this.sprite.scale.set(0.12, 0.12, 0.12);
+    this.sprite.translateZ(-17);
     this.scene.add(this.sprite);
   };
 
@@ -52,7 +52,7 @@ class Player extends Sprite {
       this.sprite.position.x += 0.4;
     if (this.movements.left && this.sprite.position.x > -width / 2 + 15)
       this.sprite.position.x -= 0.4;
-    if (this.movements.up && this.sprite.position.z > -height / 2 + 5)
+    if (this.movements.up && this.sprite.position.z > -height / 2 + 12)
       this.sprite.position.z -= 0.4;
     if (this.movements.down && this.sprite.position.z < height / 2 - 5)
       this.sprite.position.z += 0.4;
@@ -69,8 +69,8 @@ class Player extends Sprite {
   };
 
   shoot = () => {
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const geometry = new THREE.SphereGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const new_lasers = [
       new THREE.Mesh(geometry, material),
       new THREE.Mesh(geometry, material),
@@ -78,9 +78,9 @@ class Player extends Sprite {
 
     new_lasers.forEach((laser, i) => {
       this.lasers.push(laser);
-      laser.scale.set(0.2, 0.2, 1.5);
+      laser.scale.set(0.2, 0.2, 0.2);
       laser.position.set(
-        this.sprite.position.x + 1.7 * (i === 0 ? 1 : -1),
+        this.sprite.position.x + 1.2 * (i === 0 ? 1 : -1),
         this.sprite.position.y,
         this.sprite.position.z
       );

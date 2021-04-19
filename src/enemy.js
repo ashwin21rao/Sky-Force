@@ -13,8 +13,8 @@ class Enemy extends Sprite {
     await this.loadSprite();
 
     this.sprite.position.set(x_pos, 0, y_pos);
-    this.sprite.scale.set(0.5, 0.5, 0.5);
-    this.sprite.rotation.set(0, Math.PI / 2, 0);
+    this.sprite.scale.set(0.12, 0.12, 0.12);
+    // this.sprite.rotation.set(0, Math.PI / 2, 0);
 
     this.scene.add(this.sprite);
   };
@@ -25,11 +25,11 @@ class Enemy extends Sprite {
       Math.random() > 0.9
     ) {
       const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
       const laser = new THREE.Mesh(geometry, material);
 
       this.lasers.push(laser);
-      laser.scale.set(0.2, 0.2, 1.5);
+      laser.scale.set(0.2, 0.2, 1);
       laser.position.set(
         this.sprite.position.x,
         this.sprite.position.y,
