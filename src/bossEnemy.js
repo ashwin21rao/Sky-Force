@@ -1,10 +1,12 @@
 import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
+import TWEEN from "https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js";
 import ShootingEnemy from "./shootingEnemy.js";
 
 class BossEnemy {
   constructor(scene, model) {
     this.scene = scene;
     this.model = model;
+    this.on_screen = false;
   }
 
   init = (window_width, window_height) => {
@@ -18,9 +20,10 @@ class BossEnemy {
     for (const [i, enemy] of this.enemies.entries()) {
       enemy.init(
         (width * i) / number_of_enemies - width / 2,
-        -window_height / 2 + 4
+        -window_height / 2 - 3
       );
     }
+    this.final_y_pos = -window_height / 2 + 4;
   };
 
   shoot = ({ player_x, player_y }) => {
@@ -39,6 +42,9 @@ class BossEnemy {
   };
 
   checkIfHit = (player) => {
+    // check if hit only once boss enemy is on the screen
+    if (!this.on_screen) return;
+
     this.enemies.forEach((enemy) => {
       let dead;
       [player.lasers, dead] = enemy.checkIfHit(player.lasers);
@@ -62,6 +68,23 @@ class BossEnemy {
 
   remove = () => {
     this.enemies.forEach((enemy) => enemy.remove());
+  };
+
+  animateIn = () => {
+    this.enemies.forEach((enemy) => {
+      const position = {
+        z: enemy.sprite.position.z,
+      };
+      new TWEEN.Tween(position)
+        .to({ z: this.final_y_pos }, 1500)
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate(() => {
+          enemy.sprite.position.z = position.z;
+        })
+        .delay(20000)
+        .start()
+        .onComplete(() => (this.on_screen = true));
+    });
   };
 }
 

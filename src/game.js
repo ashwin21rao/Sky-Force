@@ -25,6 +25,7 @@ class Game {
     pointLight.position.set(0, 1000, 0);
     this.scene.add(pointLight);
 
+    this.numberOfEnemies = 10;
     this.bossEnemyShootInterval = null;
     this.enemySpawnInterval = null;
   }
@@ -177,14 +178,19 @@ class Game {
     this.enemies = this.enemies.filter((enemy) => !enemy.dead);
 
     // check if boss enemy is to be activated
-    if (this.totalEnemiesSpawned === 10) clearInterval(this.enemyShootInterval);
+    if (this.totalEnemiesSpawned === this.numberOfEnemies)
+      clearInterval(this.enemyShootInterval);
 
     // activate boss enemy once all inital enemies are killed
-    if (this.totalEnemiesSpawned === 10 && this.enemies.length === 0) {
+    if (
+      this.totalEnemiesSpawned === this.numberOfEnemies &&
+      this.enemies.length === 0
+    ) {
       this.bossActivated = true;
 
       this.bossEnemy = new BossEnemy(this.scene, this.enemyModel);
       this.bossEnemy.init(this.window_width, this.window_height);
+      this.bossEnemy.animateIn();
 
       clearInterval(this.enemySpawnInterval);
       this.bossEnemyShootInterval = setInterval(() => {
@@ -240,11 +246,11 @@ class Game {
         const enemy = new Enemy(this.scene, this.enemyModel, 2);
         enemy.init(
           Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
-          -this.window_height / 2
+          -this.window_height / 2 - 3
         );
         this.enemies.push(enemy);
         this.totalEnemiesSpawned++;
-      }, 2500);
+      }, 2400);
     });
   };
 
