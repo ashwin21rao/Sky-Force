@@ -2,21 +2,21 @@ import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import ShootingEnemy from "./shootingEnemy.js";
 
 class BossEnemy {
-  constructor(scene, path) {
+  constructor(scene, model) {
     this.scene = scene;
-    this.path = path;
+    this.model = model;
   }
 
-  init = async (window_width, window_height) => {
+  init = (window_width, window_height) => {
     const number_of_enemies = Math.floor((20 / 100) * window_width);
     this.enemies = Array.from(
       { length: number_of_enemies },
-      () => new ShootingEnemy(this.scene, this.path)
+      () => new ShootingEnemy(this.scene, this.model)
     );
 
     const width = window_width - 30;
     for (const [i, enemy] of this.enemies.entries()) {
-      await enemy.init(
+      enemy.init(
         (width * i) / number_of_enemies - width / 2,
         -window_height / 2 + 4
       );

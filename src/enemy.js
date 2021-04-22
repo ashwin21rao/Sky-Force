@@ -1,16 +1,14 @@
 import Sprite from "./sprite.js";
 
 class Enemy extends Sprite {
-  constructor(scene, path, health = 20) {
-    super(scene, path);
+  constructor(scene, model, health = 20) {
+    super(scene, model);
     this.health = health;
     this.lasers = [];
     this.dead = false;
   }
 
-  init = async (x_pos, y_pos) => {
-    await this.loadSprite();
-
+  init = (x_pos, y_pos) => {
     this.sprite.position.set(x_pos, 0, y_pos);
     this.sprite.scale.set(0.12, 0.12, 0.12);
 

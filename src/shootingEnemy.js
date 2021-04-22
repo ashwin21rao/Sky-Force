@@ -2,8 +2,8 @@ import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import Enemy from "./enemy.js";
 
 class ShootingEnemy extends Enemy {
-  constructor(scene, path) {
-    super(scene, path);
+  constructor(scene, model) {
+    super(scene, model);
     this.lasers = [];
   }
 

@@ -5,6 +5,7 @@ import Player from "./player.js";
 import Enemy from "./enemy.js";
 import BossEnemy from "./bossEnemy.js";
 import Star from "./star.js";
+import loadModel from "./modelLoader.js";
 
 class Game {
   constructor() {
@@ -24,12 +25,8 @@ class Game {
     pointLight.position.set(0, 1000, 0);
     this.scene.add(pointLight);
 
-    this.enemies = [];
-    this.totalEnemiesSpawned = 0;
-
-    this.enemyShootInterval = null;
-    this.started = false;
-    this.bossActivated = false;
+    this.bossEnemyShootInterval = null;
+    this.enemySpawnInterval = null;
   }
 
   initRenderer = () => {
@@ -39,6 +36,20 @@ class Game {
     );
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.container.appendChild(this.renderer.domElement);
+  };
+
+  initSprites = () => {
+    this.player = new Player(this.scene, this.playerModel);
+    this.player.init();
+
+    this.enemies = [];
+    this.stars = [];
+
+    this.bossActivated = false;
+    this.totalEnemiesSpawned = 0;
+    this.started = false;
+
+    console.log("Done");
   };
 
   loadScenebackground = () => {
@@ -54,30 +65,27 @@ class Game {
     this.scene.background = texture;
   };
 
-  loadSprites = async () => {
-    this.player = new Player(this.scene, "../assets/new_ship-2.glb");
-    await this.player.init();
+  loadModels = async () => {
+    // load player model
+    await loadModel("../assets/new_ship-2.glb").then((gltf) => {
+      this.playerModel = gltf.scene;
+    });
 
-    // this.bossEnemy = new BossEnemy(this.scene, "../assets/new_ship.glb");
-    // await this.bossEnemy.init(this.window_width, this.window_height);
-
-    this.enemies = [];
-    this.stars = [];
-
-    console.log("Done");
-    this.startButton.textContent = "Start";
-    this.startButton.style.cursor = "pointer";
+    // load enemy model
+    await loadModel("../assets/new_ship.glb").then((gltf) => {
+      this.enemyModel = gltf.scene;
+    });
   };
 
   init = async () => {
     this.initRenderer();
     this.loadScenebackground();
+    await this.loadModels();
     this.setupEventListeners();
-
-    await this.reInit();
+    this.reInit();
   };
 
-  reInit = async () => {
+  reInit = () => {
     document.querySelector(".end-screen").style.display = "none";
 
     document.querySelector(".start-screen").style.display = "flex";
@@ -85,11 +93,22 @@ class Game {
     this.startButton.style.cursor = "auto";
 
     this.camera.resetPosition();
-    await this.loadSprites();
+    this.initSprites();
+
+    document.querySelector(
+      ".score-box__score"
+    ).textContent = `Score: ${this.player.score}`;
+    document.querySelector(
+      ".score-box__health"
+    ).textContent = `Health: ${Math.floor(this.player.health)}`;
+
+    this.startButton.textContent = "Start";
+    this.startButton.style.cursor = "pointer";
+
     this.animate();
   };
 
-  animate = async () => {
+  animate = () => {
     // update tweening if any
     TWEEN.update();
 
@@ -101,7 +120,7 @@ class Game {
     this.player.moveLasers(this.window_height);
 
     // animation loop for enemies
-    if (!this.bossActivated) await this.animateEnemies();
+    if (!this.bossActivated) this.animateEnemies();
     else this.animateBossEnemy();
 
     // if player is dead, end game
@@ -110,38 +129,11 @@ class Game {
       return;
     }
 
-    // animate boss enemies
-
-    // // check if player has been hit
-    // this.bossEnemy.checkIfHitPlayer(this.player);
-    // document.querySelector(
-    //   ".score-box__health"
-    // ).textContent = `Health: ${Math.floor(this.player.health)}`;
-
-    // // check if player is dead
-    // if (this.player.dead) {
-    //   this.endGame(false);
-    //   return;
-    // }
-
-    // // check if enemy has been hit
-    // this.bossEnemy.checkIfHit(this.player);
-    // document.querySelector(
-    //   ".score-box__score"
-    // ).textContent = `Score: ${this.player.score}`;
-
-    // // move enemy lasers
-    // this.bossEnemy.moveLasers();
-
-    // // remove dead enemies
-    // this.bossEnemy.killDead();
-
-    // // check if all enemies are dead
-    // if (this.bossEnemy.isDead()) {
-    //   this.endGame(true);
-    //   console.log("Here");
-    //   return;
-    // }
+    // if boss is dead, end game
+    if (this.bossActivated && this.bossEnemy.isDead()) {
+      this.endGame(true);
+      return;
+    }
 
     // generate star
     if (this.started) this.generateStar();
@@ -154,7 +146,7 @@ class Game {
     requestAnimationFrame(this.animate);
   };
 
-  animateEnemies = async () => {
+  animateEnemies = () => {
     // move enemies
     this.enemies.forEach((enemy) => {
       enemy.move();
@@ -172,6 +164,9 @@ class Game {
         if (dead) this.player.score += 10;
       }
     });
+    document.querySelector(
+      ".score-box__score"
+    ).textContent = `Score: ${this.player.score}`;
 
     // kill dead enemies
     this.enemies = this.enemies.filter((enemy) => !enemy.dead);
@@ -183,10 +178,11 @@ class Game {
     if (this.totalEnemiesSpawned === 10 && this.enemies.length === 0) {
       this.bossActivated = true;
 
-      this.bossEnemy = new BossEnemy(this.scene, "../assets/new_ship.glb");
-      await this.bossEnemy.init(this.window_width, this.window_height);
+      this.bossEnemy = new BossEnemy(this.scene, this.enemyModel);
+      this.bossEnemy.init(this.window_width, this.window_height);
 
-      this.enemyShootInterval = setInterval(() => {
+      clearInterval(this.enemySpawnInterval);
+      this.bossEnemyShootInterval = setInterval(() => {
         this.bossEnemy.shoot({
           player_x: this.player.sprite.position.x,
           player_y: this.player.sprite.position.y,
@@ -202,12 +198,6 @@ class Game {
       ".score-box__health"
     ).textContent = `Health: ${Math.floor(this.player.health)}`;
 
-    // check if player is dead
-    if (this.player.dead) {
-      this.endGame(false);
-      return;
-    }
-
     // check if enemy has been hit
     this.bossEnemy.checkIfHit(this.player);
     document.querySelector(
@@ -219,13 +209,6 @@ class Game {
 
     // remove dead enemies
     this.bossEnemy.killDead();
-
-    // check if all enemies are dead
-    if (this.bossEnemy.isDead()) {
-      this.endGame(true);
-      console.log("Here");
-      return;
-    }
   };
 
   generateStar = () => {
@@ -247,16 +230,10 @@ class Game {
     this.camera.startAnimation(() => {
       this.started = true;
 
-      // this.enemyShootInterval = setInterval(async () => {
-      //   this.bossEnemy.shoot({
-      //     player_x: this.player.sprite.position.x,
-      //     player_y: this.player.sprite.position.y,
-      //   });
-      // }, 500);
-
-      this.enemyShootInterval = setInterval(async () => {
-        const enemy = new Enemy(this.scene, "../assets/new_ship.glb", 2);
-        await enemy.init(
+      // create enemies
+      this.enemySpawnInterval = setInterval(() => {
+        const enemy = new Enemy(this.scene, this.enemyModel, 2);
+        enemy.init(
           Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
           -this.window_height / 2
         );
@@ -267,13 +244,13 @@ class Game {
   };
 
   endGame = (won) => {
-    clearInterval(this.enemyShootInterval);
-    this.started = false;
+    clearInterval(this.enemySpawnInterval);
+    clearInterval(this.bossEnemyShootInterval);
 
     this.player.remove();
     this.enemies.forEach((enemy) => enemy.remove());
 
-    this.bossEnemy.remove();
+    if (this.bossActivated) this.bossEnemy.remove();
     this.stars.forEach((star) => star.remove());
 
     document.querySelector(

@@ -2,8 +2,8 @@ import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import Sprite from "./sprite.js";
 
 class Player extends Sprite {
-  constructor(scene, path) {
-    super(scene, path);
+  constructor(scene, model) {
+    super(scene, model);
     this.setUpEventListeners();
     this.movements = { left: false, right: false, up: false, down: false };
     this.timeOfLastSpacePress = null;
@@ -13,9 +13,7 @@ class Player extends Sprite {
     this.dead = false;
   }
 
-  init = async () => {
-    await this.loadSprite();
-
+  init = () => {
     this.sprite.position.set(0, 0, 0);
     this.sprite.rotation.set(0, -Math.PI, 0);
     this.sprite.scale.set(0.12, 0.12, 0.12);
