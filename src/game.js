@@ -2,6 +2,7 @@ import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import TWEEN from "https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js";
 import Camera from "./camera.js";
 import Player from "./player.js";
+import Enemy from "./enemy.js";
 import BossEnemy from "./bossEnemy.js";
 import Star from "./star.js";
 
@@ -19,15 +20,16 @@ class Game {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
-    // const ambientLight = new THREE.AmbientLight(0xffffff, 3);
-    // this.scene.add(ambientLight);
-
     const pointLight = new THREE.PointLight(0xffffff, 2.1);
     pointLight.position.set(0, 1000, 0);
     this.scene.add(pointLight);
 
+    this.enemies = [];
+    this.totalEnemiesSpawned = 0;
+
     this.enemyShootInterval = null;
     this.started = false;
+    this.bossActivated = false;
   }
 
   initRenderer = () => {
@@ -56,9 +58,10 @@ class Game {
     this.player = new Player(this.scene, "../assets/new_ship-2.glb");
     await this.player.init();
 
-    this.bossEnemy = new BossEnemy(this.scene, "../assets/new_ship.glb");
-    await this.bossEnemy.init(this.window_width, this.window_height);
+    // this.bossEnemy = new BossEnemy(this.scene, "../assets/new_ship.glb");
+    // await this.bossEnemy.init(this.window_width, this.window_height);
 
+    this.enemies = [];
     this.stars = [];
 
     console.log("Done");
@@ -86,9 +89,7 @@ class Game {
     this.animate();
   };
 
-  animate = () => {
-    console.log(this.window_width);
-    console.log(this.bossEnemy.enemies.length);
+  animate = async () => {
     // update tweening if any
     TWEEN.update();
 
@@ -99,6 +100,102 @@ class Game {
     this.player.shootNext();
     this.player.moveLasers(this.window_height);
 
+    // animation loop for enemies
+    if (!this.bossActivated) await this.animateEnemies();
+    else this.animateBossEnemy();
+
+    // if player is dead, end game
+    if (this.player.dead) {
+      this.endGame(false);
+      return;
+    }
+
+    // animate boss enemies
+
+    // // check if player has been hit
+    // this.bossEnemy.checkIfHitPlayer(this.player);
+    // document.querySelector(
+    //   ".score-box__health"
+    // ).textContent = `Health: ${Math.floor(this.player.health)}`;
+
+    // // check if player is dead
+    // if (this.player.dead) {
+    //   this.endGame(false);
+    //   return;
+    // }
+
+    // // check if enemy has been hit
+    // this.bossEnemy.checkIfHit(this.player);
+    // document.querySelector(
+    //   ".score-box__score"
+    // ).textContent = `Score: ${this.player.score}`;
+
+    // // move enemy lasers
+    // this.bossEnemy.moveLasers();
+
+    // // remove dead enemies
+    // this.bossEnemy.killDead();
+
+    // // check if all enemies are dead
+    // if (this.bossEnemy.isDead()) {
+    //   this.endGame(true);
+    //   console.log("Here");
+    //   return;
+    // }
+
+    // generate star
+    if (this.started) this.generateStar();
+
+    // check if star obtained
+    this.stars = this.player.checkIfStarObtained(this.stars);
+
+    // render screen
+    this.renderer.render(this.scene, this.camera.camera);
+    requestAnimationFrame(this.animate);
+  };
+
+  animateEnemies = async () => {
+    // move enemies
+    this.enemies.forEach((enemy) => {
+      enemy.move();
+
+      // if enemy has passed player, game over
+      if (enemy.sprite.position.z > this.window_height / 2 + 5)
+        this.player.dead = true;
+    });
+
+    // check if enemies on screen have been hit
+    this.enemies.forEach((enemy) => {
+      if (enemy.sprite.position.z > -this.window_height / 2 + 2) {
+        let dead;
+        [this.player.lasers, dead] = enemy.checkIfHit(this.player.lasers);
+        if (dead) this.player.score += 10;
+      }
+    });
+
+    // kill dead enemies
+    this.enemies = this.enemies.filter((enemy) => !enemy.dead);
+
+    // check if boss enemy is to be activated
+    if (this.totalEnemiesSpawned === 10) clearInterval(this.enemyShootInterval);
+
+    // activate boss enemy once all inital enemies are killed
+    if (this.totalEnemiesSpawned === 10 && this.enemies.length === 0) {
+      this.bossActivated = true;
+
+      this.bossEnemy = new BossEnemy(this.scene, "../assets/new_ship.glb");
+      await this.bossEnemy.init(this.window_width, this.window_height);
+
+      this.enemyShootInterval = setInterval(() => {
+        this.bossEnemy.shoot({
+          player_x: this.player.sprite.position.x,
+          player_y: this.player.sprite.position.y,
+        });
+      }, 500);
+    }
+  };
+
+  animateBossEnemy = () => {
     // check if player has been hit
     this.bossEnemy.checkIfHitPlayer(this.player);
     document.querySelector(
@@ -129,21 +226,10 @@ class Game {
       console.log("Here");
       return;
     }
-
-    // generate star
-    if (this.started) this.generateStar();
-
-    // check if star obtained
-    this.stars = this.player.checkIfStarObtained(this.stars);
-
-    // render screen
-    this.renderer.render(this.scene, this.camera.camera);
-    requestAnimationFrame(this.animate);
   };
 
   generateStar = () => {
     if (Math.random() > 0.995) {
-      console.log("Here");
       const star = new Star(this.scene);
       star.sprite.position.set(
         Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
@@ -161,12 +247,22 @@ class Game {
     this.camera.startAnimation(() => {
       this.started = true;
 
-      this.enemyShootInterval = setInterval(() => {
-        this.bossEnemy.shoot({
-          player_x: this.player.sprite.position.x,
-          player_y: this.player.sprite.position.y,
-        });
-      }, 500);
+      // this.enemyShootInterval = setInterval(async () => {
+      //   this.bossEnemy.shoot({
+      //     player_x: this.player.sprite.position.x,
+      //     player_y: this.player.sprite.position.y,
+      //   });
+      // }, 500);
+
+      this.enemyShootInterval = setInterval(async () => {
+        const enemy = new Enemy(this.scene, "../assets/new_ship.glb", 2);
+        await enemy.init(
+          Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
+          -this.window_height / 2
+        );
+        this.enemies.push(enemy);
+        this.totalEnemiesSpawned++;
+      }, 2500);
     });
   };
 
@@ -175,6 +271,8 @@ class Game {
     this.started = false;
 
     this.player.remove();
+    this.enemies.forEach((enemy) => enemy.remove());
+
     this.bossEnemy.remove();
     this.stars.forEach((star) => star.remove());
 

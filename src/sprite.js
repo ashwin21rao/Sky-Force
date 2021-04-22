@@ -22,6 +22,10 @@ class Sprite {
       );
     });
   };
+
+  cloneSprite = (sprite) => {
+    return sprite.clone();
+  };
 }
 
 export default Sprite;

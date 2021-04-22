@@ -1,9 +1,9 @@
 import Sprite from "./sprite.js";
 
 class Enemy extends Sprite {
-  constructor(scene, path) {
+  constructor(scene, path, health = 20) {
     super(scene, path);
-    this.health = 20;
+    this.health = health;
     this.lasers = [];
     this.dead = false;
   }
@@ -36,6 +36,10 @@ class Enemy extends Sprite {
 
   remove = () => {
     this.scene.remove(this.sprite);
+  };
+
+  move = () => {
+    this.sprite.position.z += 0.2;
   };
 }
 
