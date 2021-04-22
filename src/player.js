@@ -75,6 +75,8 @@ class Player extends Sprite {
     ];
 
     new_lasers.forEach((laser, i) => {
+      laser.geometry.computeBoundingBox();
+
       this.lasers.push(laser);
       laser.scale.set(0.2, 0.2, 0.2);
       laser.position.set(
@@ -97,12 +99,13 @@ class Player extends Sprite {
 
   checkIfHit = (lasers) => {
     lasers = lasers.filter((laser) => {
-      const ret = this.sprite.position.distanceTo(laser.position);
-      if (ret <= 2) {
+      const hit = this.checkLaserCollision(laser);
+
+      if (hit) {
         this.scene.remove(laser);
         this.health -= 1;
       }
-      return ret > 2;
+      return !hit;
     });
 
     if (Math.floor(this.health) <= 0) {
@@ -114,13 +117,13 @@ class Player extends Sprite {
 
   checkIfStarObtained = (stars) => {
     return stars.filter((star) => {
-      const ret = this.sprite.position.distanceTo(star.sprite.position);
-      if (ret <= 3) {
+      const hit = this.checkCollision(star);
+      if (hit) {
         this.scene.remove(star.sprite);
         this.score += 5;
         this.health += 0.2;
       }
-      return ret > 3;
+      return !hit;
     });
   };
 

@@ -4,8 +4,11 @@ class Star {
   constructor(scene) {
     this.scene = scene;
     this.path = "../assets/star.png";
+
     this.sprite = null;
     this.loadSprite();
+
+    this.bbox = new THREE.Box3().setFromObject(this.sprite);
   }
 
   loadSprite = () => {

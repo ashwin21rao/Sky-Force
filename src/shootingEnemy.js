@@ -16,6 +16,8 @@ class ShootingEnemy extends Enemy {
       const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
       const laser = new THREE.Mesh(geometry, material);
 
+      laser.geometry.computeBoundingBox();
+
       this.lasers.push(laser);
       laser.scale.set(0.2, 0.2, 1);
       laser.position.set(

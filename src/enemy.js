@@ -17,12 +17,13 @@ class Enemy extends Sprite {
 
   checkIfHit = (lasers) => {
     lasers = lasers.filter((laser) => {
-      const ret = this.sprite.position.distanceTo(laser.position);
-      if (ret <= 1) {
+      const hit = this.checkLaserCollision(laser);
+
+      if (hit) {
         this.scene.remove(laser);
         this.health -= 1;
       }
-      return ret > 1;
+      return !hit;
     });
 
     if (this.health == 0) {

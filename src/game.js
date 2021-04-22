@@ -156,6 +156,11 @@ class Game {
         this.player.dead = true;
     });
 
+    // check if player and enemy collided
+    this.enemies.forEach((enemy) => {
+      if (this.player.checkCollision(enemy)) this.player.dead = true;
+    });
+
     // check if enemies on screen have been hit
     this.enemies.forEach((enemy) => {
       if (enemy.sprite.position.z > -this.window_height / 2 + 2) {
