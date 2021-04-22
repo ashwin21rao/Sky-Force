@@ -25,9 +25,11 @@ class Game {
     pointLight.position.set(0, 1000, 0);
     this.scene.add(pointLight);
 
-    this.numberOfEnemies = 10;
-    this.bossEnemyShootInterval = null;
+    this.numberOfEnemies = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
     this.enemySpawnInterval = null;
+
+    this.numberOfBossEnemies = 5;
+    this.bossEnemyShootInterval = null;
 
     this.audio = null;
   }
@@ -48,8 +50,10 @@ class Game {
     this.enemies = [];
     this.stars = [];
 
+    this.numberOfEnemies = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
     this.bossActivated = false;
     this.totalEnemiesSpawned = 0;
+    this.totalBossEnemiesSpawned = 0;
     this.started = false;
 
     console.log("Done");
@@ -132,10 +136,14 @@ class Game {
       return;
     }
 
-    // if boss is dead, end game
+    // if boss is dead, end game or activate next boss
     if (this.bossActivated && this.bossEnemy.isDead()) {
-      this.endGame(true);
-      return;
+      if (this.totalBossEnemiesSpawned === this.numberOfBossEnemies) {
+        this.endGame(true);
+        return;
+      } else {
+        this.activateBossEnemy();
+      }
     }
 
     // generate star
@@ -188,20 +196,30 @@ class Game {
       this.totalEnemiesSpawned === this.numberOfEnemies &&
       this.enemies.length === 0
     ) {
-      this.bossActivated = true;
-
-      this.bossEnemy = new BossEnemy(this.scene, this.enemyModel);
-      this.bossEnemy.init(this.window_width, this.window_height);
-      this.bossEnemy.animateIn();
-
-      clearInterval(this.enemySpawnInterval);
-      this.bossEnemyShootInterval = setInterval(() => {
-        this.bossEnemy.shoot({
-          player_x: this.player.sprite.position.x,
-          player_y: this.player.sprite.position.y,
-        });
-      }, 500);
+      this.activateBossEnemy();
     }
+  };
+
+  activateBossEnemy = () => {
+    this.bossActivated = true;
+    this.totalBossEnemiesSpawned++;
+
+    this.bossEnemy = new BossEnemy(
+      this.scene,
+      this.enemyModel,
+      this.totalBossEnemiesSpawned
+    );
+    this.bossEnemy.init(this.window_width, this.window_height);
+    this.bossEnemy.animateIn();
+
+    clearInterval(this.enemySpawnInterval);
+    clearInterval(this.bossEnemyShootInterval);
+    this.bossEnemyShootInterval = setInterval(() => {
+      this.bossEnemy.shoot({
+        player_x: this.player.sprite.position.x,
+        player_y: this.player.sprite.position.y,
+      });
+    }, 500);
   };
 
   animateBossEnemy = () => {

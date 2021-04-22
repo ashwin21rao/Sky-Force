@@ -9,7 +9,7 @@ class Player extends Sprite {
     this.timeOfLastSpacePress = null;
     this.lasers = [];
     this.score = 0;
-    this.health = 10;
+    this.health = 20;
     this.dead = false;
   }
 

@@ -1,11 +1,12 @@
-import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import TWEEN from "https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js";
 import ShootingEnemy from "./shootingEnemy.js";
 
 class BossEnemy {
-  constructor(scene, model) {
+  constructor(scene, model, difficulty) {
     this.scene = scene;
     this.model = model;
+    this.difficulty = difficulty;
+
     this.on_screen = false;
   }
 
@@ -31,6 +32,7 @@ class BossEnemy {
       enemy.shoot({
         player_x,
         player_y,
+        probability: 1 - this.difficulty * 0.05,
       })
     );
   };
