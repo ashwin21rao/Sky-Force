@@ -2,7 +2,7 @@ import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import TWEEN from "https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js";
 import Camera from "./camera.js";
 import Player from "./player.js";
-import Enemy from "./enemy.js";
+import BossEnemy from "./bossEnemy.js";
 import Star from "./star.js";
 
 class Game {
@@ -18,7 +18,6 @@ class Game {
     this.calculateVisibleRegion();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    // this.renderer.setClearColor(0xffffff, 0);
 
     // const ambientLight = new THREE.AmbientLight(0xffffff, 3);
     // this.scene.add(ambientLight);
@@ -57,19 +56,8 @@ class Game {
     this.player = new Player(this.scene, "../assets/new_ship-2.glb");
     await this.player.init();
 
-    const number_of_enemies = Math.floor((20 / 100) * this.window_width);
-    this.enemies = Array.from(
-      { length: number_of_enemies },
-      () => new Enemy(this.scene, "../assets/new_ship.glb")
-    );
-
-    const width = this.window_width - 30;
-    for (const [i, enemy] of this.enemies.entries()) {
-      await enemy.init(
-        (width * i) / number_of_enemies - width / 2,
-        -this.window_height / 2 + 4
-      );
-    }
+    this.bossEnemy = new BossEnemy(this.scene, "../assets/new_ship.glb");
+    await this.bossEnemy.init(this.window_width, this.window_height);
 
     this.stars = [];
 
@@ -100,6 +88,7 @@ class Game {
 
   animate = () => {
     console.log(this.window_width);
+    console.log(this.bossEnemy.enemies.length);
     // update tweening if any
     TWEEN.update();
 
@@ -111,13 +100,10 @@ class Game {
     this.player.moveLasers(this.window_height);
 
     // check if player has been hit
-    this.enemies.forEach((enemy) => {
-      enemy.lasers = this.player.checkIfHit(enemy.lasers);
-
-      document.querySelector(
-        ".score-box__health"
-      ).textContent = `Health: ${Math.floor(this.player.health)}`;
-    });
+    this.bossEnemy.checkIfHitPlayer(this.player);
+    document.querySelector(
+      ".score-box__health"
+    ).textContent = `Health: ${Math.floor(this.player.health)}`;
 
     // check if player is dead
     if (this.player.dead) {
@@ -126,27 +112,21 @@ class Game {
     }
 
     // check if enemy has been hit
-    this.enemies.forEach((enemy) => {
-      let dead;
-      [this.player.lasers, dead] = enemy.checkIfHit(this.player.lasers);
-      if (dead) this.player.score += 10;
-
-      document.querySelector(
-        ".score-box__score"
-      ).textContent = `Score: ${this.player.score}`;
-    });
+    this.bossEnemy.checkIfHit(this.player);
+    document.querySelector(
+      ".score-box__score"
+    ).textContent = `Score: ${this.player.score}`;
 
     // move enemy lasers
-    this.enemies.forEach((enemy) => {
-      enemy.moveLasers();
-    });
+    this.bossEnemy.moveLasers();
 
     // remove dead enemies
-    this.enemies = this.enemies.filter((enemy) => !enemy.dead);
+    this.bossEnemy.killDead();
 
     // check if all enemies are dead
-    if (this.enemies.length === 0) {
+    if (this.bossEnemy.isDead()) {
       this.endGame(true);
+      console.log("Here");
       return;
     }
 
@@ -180,13 +160,12 @@ class Game {
 
     this.camera.startAnimation(() => {
       this.started = true;
+
       this.enemyShootInterval = setInterval(() => {
-        this.enemies.forEach((enemy) =>
-          enemy.shoot({
-            player_x: this.player.sprite.position.x,
-            player_y: this.player.sprite.position.y,
-          })
-        );
+        this.bossEnemy.shoot({
+          player_x: this.player.sprite.position.x,
+          player_y: this.player.sprite.position.y,
+        });
       }, 500);
     });
   };
@@ -196,7 +175,7 @@ class Game {
     this.started = false;
 
     this.player.remove();
-    this.enemies.forEach((enemy) => enemy.remove());
+    this.bossEnemy.remove();
     this.stars.forEach((star) => star.remove());
 
     document.querySelector(
