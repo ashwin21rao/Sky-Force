@@ -28,6 +28,8 @@ class Game {
     this.numberOfEnemies = 10;
     this.bossEnemyShootInterval = null;
     this.enemySpawnInterval = null;
+
+    this.audio = null;
   }
 
   initRenderer = () => {
@@ -237,6 +239,13 @@ class Game {
   startGame = () => {
     document.querySelector(".start-screen").style.display = "none";
     document.querySelector(".score-box").style.display = "block";
+
+    // play background music
+    if (!this.audio) {
+      this.audio = new Audio("../assets/background.mp3");
+      this.audio.loop = true;
+      this.audio.play();
+    }
 
     this.camera.startAnimation(() => {
       this.started = true;
