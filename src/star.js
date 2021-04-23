@@ -4,6 +4,7 @@ class Star {
   constructor(scene) {
     this.scene = scene;
     this.path = "../assets/star.png";
+    this.timeOfGeneration = new Date();
 
     this.sprite = null;
     this.loadSprite();

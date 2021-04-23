@@ -1,7 +1,7 @@
 import Sprite from "./sprite.js";
 
 class Enemy extends Sprite {
-  constructor(scene, model, health = 20) {
+  constructor(scene, model, health) {
     super(scene, model);
     this.health = health;
     this.lasers = [];

@@ -6,6 +6,7 @@ class BossEnemy {
     this.scene = scene;
     this.model = model;
     this.difficulty = difficulty;
+    this.health = 25;
 
     this.on_screen = false;
   }
@@ -14,7 +15,7 @@ class BossEnemy {
     const number_of_enemies = Math.floor((20 / 100) * window_width);
     this.enemies = Array.from(
       { length: number_of_enemies },
-      () => new ShootingEnemy(this.scene, this.model)
+      () => new ShootingEnemy(this.scene, this.model, this.health)
     );
 
     const width = window_width - 30;

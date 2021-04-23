@@ -6,6 +6,7 @@ import Enemy from "./enemy.js";
 import BossEnemy from "./bossEnemy.js";
 import Star from "./star.js";
 import loadModel from "./modelLoader.js";
+import AudioPlayer from "./audioPlayer.js";
 
 class Game {
   constructor() {
@@ -31,7 +32,7 @@ class Game {
     this.numberOfBossEnemies = 5;
     this.bossEnemyShootInterval = null;
 
-    this.audio = null;
+    this.audio = new AudioPlayer("../assets/background.mp3");
   }
 
   initRenderer = () => {
@@ -87,7 +88,10 @@ class Game {
   init = async () => {
     this.initRenderer();
     this.loadScenebackground();
+
     await this.loadModels();
+    await this.audio.loadAudio();
+
     this.setupEventListeners();
     this.reInit();
   };
@@ -148,6 +152,13 @@ class Game {
 
     // generate star
     if (this.started) this.generateStar();
+
+    // remove stars
+    this.stars = this.stars.filter((star) => {
+      const time = (new Date() - star.timeOfGeneration) / 1000;
+      if (time > 10) star.remove();
+      return time <= 10;
+    });
 
     // check if star obtained
     this.stars = this.player.checkIfStarObtained(this.stars);
@@ -259,11 +270,7 @@ class Game {
     document.querySelector(".score-box").style.display = "block";
 
     // play background music
-    if (!this.audio) {
-      this.audio = new Audio("../assets/background.mp3");
-      this.audio.loop = true;
-      this.audio.play();
-    }
+    if (!this.audio.playing) this.audio.play();
 
     this.camera.startAnimation(() => {
       this.started = true;
