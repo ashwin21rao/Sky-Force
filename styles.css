@@ -6,9 +6,20 @@
   box-sizing: border-box;
 }
 
-.container {
+body {
   width: 100vw;
   height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: linear-gradient(147deg, #16222a 15%, #3a6073, #16222a 85%);
+}
+
+.game-container {
+  width: 1200px;
+  height: 675px;
+
+  position: relative;
 }
 
 .start-screen,
@@ -21,10 +32,11 @@
 
 .start-screen,
 .end-screen {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   z-index: 2;
-  background: url("assets/space/space-posx.jpg");
+  background-color: #000000;
+  background-image: url("assets/space/space-posx.jpg");
 
   display: flex;
   align-items: center;
@@ -65,7 +77,7 @@
 
   font-family: "Fredoka One";
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
 
   display: none;
 }

@@ -10,7 +10,7 @@ import AudioPlayer from "./audioPlayer.js";
 
 class Game {
   constructor() {
-    this.container = document.querySelector(".container");
+    this.container = document.querySelector(".game-container");
     this.startButton = document.querySelector(".start-screen__start");
 
     this.scene = new THREE.Scene();
@@ -26,7 +26,7 @@ class Game {
     pointLight.position.set(0, 1000, 0);
     this.scene.add(pointLight);
 
-    this.numberOfEnemies = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
+    this.numberOfEnemies = 20;
     this.enemySpawnInterval = null;
 
     this.numberOfBossEnemies = 5;
@@ -51,7 +51,6 @@ class Game {
     this.enemies = [];
     this.stars = [];
 
-    this.numberOfEnemies = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
     this.bossActivated = false;
     this.totalEnemiesSpawned = 0;
     this.totalBossEnemiesSpawned = 0;
@@ -284,7 +283,7 @@ class Game {
         );
         this.enemies.push(enemy);
         this.totalEnemiesSpawned++;
-      }, 2400);
+      }, 2100);
     });
   };
 

@@ -21,7 +21,7 @@ class BossEnemy {
     const width = window_width - 30;
     for (const [i, enemy] of this.enemies.entries()) {
       enemy.init(
-        (width * i) / number_of_enemies - width / 2,
+        (width * i) / (number_of_enemies - 1) - width / 2,
         -window_height / 2 - 3
       );
     }
@@ -33,7 +33,7 @@ class BossEnemy {
       enemy.shoot({
         player_x,
         player_y,
-        probability: 1 - this.difficulty * 0.05,
+        probability: 1 - this.difficulty * 0.04,
       })
     );
   };

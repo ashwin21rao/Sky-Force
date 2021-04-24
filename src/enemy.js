@@ -38,7 +38,7 @@ class Enemy extends Sprite {
   };
 
   move = () => {
-    this.sprite.position.z += 0.2;
+    this.sprite.position.z += 0.3;
   };
 }
 

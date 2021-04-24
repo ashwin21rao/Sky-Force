@@ -52,7 +52,7 @@ class Player extends Sprite {
       this.sprite.position.x -= 0.4;
     if (this.movements.up && this.sprite.position.z > -height / 2 + 12)
       this.sprite.position.z -= 0.4;
-    if (this.movements.down && this.sprite.position.z < height / 2 - 5)
+    if (this.movements.down && this.sprite.position.z < height / 2 - 4)
       this.sprite.position.z += 0.4;
   };
 
