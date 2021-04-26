@@ -33,7 +33,7 @@ class BossEnemy {
       enemy.shoot({
         player_x,
         player_y,
-        probability: 1 - this.difficulty * 0.04,
+        probability: 1 - this.difficulty * 0.045,
       })
     );
   };

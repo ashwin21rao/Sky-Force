@@ -167,6 +167,24 @@ class Game {
     requestAnimationFrame(this.animate);
   };
 
+  activateEnemies = () => {
+    this.bossActivated = false;
+    this.enemies = [];
+    this.totalEnemiesSpawned = 0;
+
+    clearInterval(this.enemySpawnInterval);
+    clearInterval(this.bossEnemyShootInterval);
+    this.enemySpawnInterval = setInterval(() => {
+      const enemy = new Enemy(this.scene, this.enemyModel, 2);
+      enemy.init(
+        Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
+        -this.window_height / 2 - 3
+      );
+      this.enemies.push(enemy);
+      this.totalEnemiesSpawned++;
+    }, 2200);
+  };
+
   animateEnemies = () => {
     // move enemies
     this.enemies.forEach((enemy) => {
@@ -199,7 +217,7 @@ class Game {
 
     // check if boss enemy is to be activated
     if (this.totalEnemiesSpawned === this.numberOfEnemies)
-      clearInterval(this.enemyShootInterval);
+      clearInterval(this.enemySpawnInterval);
 
     // activate boss enemy once all inital enemies are killed
     if (
@@ -273,17 +291,7 @@ class Game {
 
     this.camera.startAnimation(() => {
       this.started = true;
-
-      // create enemies
-      this.enemySpawnInterval = setInterval(() => {
-        const enemy = new Enemy(this.scene, this.enemyModel, 2);
-        enemy.init(
-          Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
-          -this.window_height / 2 - 3
-        );
-        this.enemies.push(enemy);
-        this.totalEnemiesSpawned++;
-      }, 2100);
+      this.activateEnemies();
     });
   };
 
