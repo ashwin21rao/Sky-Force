@@ -26,7 +26,7 @@ class Game {
     pointLight.position.set(0, 1000, 0);
     this.scene.add(pointLight);
 
-    this.numberOfEnemies = 20;
+    this.numberOfEnemies = 10;
     this.enemySpawnInterval = null;
 
     this.numberOfBossEnemies = 5;
@@ -55,6 +55,7 @@ class Game {
     this.totalEnemiesSpawned = 0;
     this.totalBossEnemiesSpawned = 0;
     this.started = false;
+    this.level = 1;
 
     console.log("Done");
   };
@@ -145,7 +146,9 @@ class Game {
         this.endGame(true);
         return;
       } else {
-        this.activateBossEnemy();
+        this.bossActivated = false;
+        this.level++;
+        this.activateEnemies();
       }
     }
 
@@ -168,21 +171,27 @@ class Game {
   };
 
   activateEnemies = () => {
-    this.bossActivated = false;
     this.enemies = [];
     this.totalEnemiesSpawned = 0;
+    const speeds = [0.2, 0.25, 0.3, 0.35, 0.4];
+    const delays = [1500, 1800, 2100, 2300, 2500];
 
     clearInterval(this.enemySpawnInterval);
     clearInterval(this.bossEnemyShootInterval);
     this.enemySpawnInterval = setInterval(() => {
-      const enemy = new Enemy(this.scene, this.enemyModel, 2);
+      const enemy = new Enemy(
+        this.scene,
+        this.enemyModel,
+        2,
+        speeds[this.level - 1]
+      );
       enemy.init(
-        Math.random() * (this.window_width - 30) - this.window_width / 2 + 15,
+        Math.random() * (this.window_width - 40) - this.window_width / 2 + 20,
         -this.window_height / 2 - 3
       );
       this.enemies.push(enemy);
       this.totalEnemiesSpawned++;
-    }, 2200);
+    }, delays[this.level - 1]);
   };
 
   animateEnemies = () => {

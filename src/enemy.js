@@ -1,11 +1,12 @@
 import Sprite from "./sprite.js";
 
 class Enemy extends Sprite {
-  constructor(scene, model, health) {
+  constructor(scene, model, health, speed = 0) {
     super(scene, model);
     this.health = health;
     this.lasers = [];
     this.dead = false;
+    this.speed = speed;
   }
 
   init = (x_pos, y_pos) => {
@@ -38,7 +39,7 @@ class Enemy extends Sprite {
   };
 
   move = () => {
-    this.sprite.position.z += 0.3;
+    this.sprite.position.z += this.speed;
   };
 }
 

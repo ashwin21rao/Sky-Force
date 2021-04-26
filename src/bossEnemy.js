@@ -84,7 +84,7 @@ class BossEnemy {
         .onUpdate(() => {
           enemy.sprite.position.z = position.z;
         })
-        .delay(20000)
+        .delay(15000)
         .start()
         .onComplete(() => (this.on_screen = true));
     });
