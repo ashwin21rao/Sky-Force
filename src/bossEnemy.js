@@ -12,7 +12,7 @@ class BossEnemy {
   }
 
   init = (window_width, window_height) => {
-    const number_of_enemies = Math.floor((20 / 100) * window_width);
+    const number_of_enemies = Math.floor((25 / 100) * window_width);
     this.enemies = Array.from(
       { length: number_of_enemies },
       () => new ShootingEnemy(this.scene, this.model, this.health)

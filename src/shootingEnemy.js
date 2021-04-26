@@ -7,7 +7,7 @@ class ShootingEnemy extends Enemy {
     this.lasers = [];
   }
 
-  shoot = ({ player_x, player_y, probability }) => {
+  shoot = ({ player_x, probability }) => {
     if (
       Math.abs(this.sprite.position.x - player_x) <= 2 ||
       Math.random() > probability
