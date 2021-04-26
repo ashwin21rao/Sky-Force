@@ -82,6 +82,20 @@ body {
   display: none;
 }
 
+.level-up {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+
+  font-family: "Fredoka One";
+  color: white;
+  font-size: 2rem;
+  visibility: hidden;
+  opacity: 0;
+}
+
 @keyframes throb {
   0% {
     transform: scale(1);
@@ -91,5 +105,24 @@ body {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+  }
+  20% {
+    opacity: 1;
+    visibility: visible;
+  }
+  70% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
   }
 }

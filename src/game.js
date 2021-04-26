@@ -55,7 +55,7 @@ class Game {
     this.totalEnemiesSpawned = 0;
     this.totalBossEnemiesSpawned = 0;
     this.started = false;
-    this.level = 1;
+    this.level = 0;
 
     console.log("Done");
   };
@@ -119,6 +119,12 @@ class Game {
     this.animate();
   };
 
+  levelUp = () => {
+    this.level++;
+    if (this.level > 1)
+      document.querySelector(".level-up").style.animation = "fadeInOut 2s";
+  };
+
   animate = () => {
     // update tweening if any
     TWEEN.update();
@@ -147,7 +153,7 @@ class Game {
         return;
       } else {
         this.bossActivated = false;
-        this.level++;
+        this.levelUp();
         this.activateEnemies();
       }
     }
@@ -300,6 +306,7 @@ class Game {
 
     this.camera.startAnimation(() => {
       this.started = true;
+      this.levelUp();
       this.activateEnemies();
     });
   };
@@ -353,6 +360,12 @@ class Game {
     document
       .querySelector(".end-screen__restart")
       .addEventListener("click", this.reInit);
+
+    document
+      .querySelector(".level-up")
+      .addEventListener("animationend", function () {
+        this.style.animation = "none";
+      });
   };
 }
 
